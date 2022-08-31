@@ -101,6 +101,14 @@ public class Interpreter implements Expr.Visitor<Object>,
         return environment.get(expr.name);
     }
 
+    @Override
+    public Object visitAssignExpr(Expr.Assign expr) {
+        // Assigns a value to a variable
+        Object value = evaluate(expr.value);
+        environment.assign(expr.name, value);
+        return value;
+    }
+
     private Object evaluate(Expr expr) {
         return expr.accept(this);
     }
@@ -136,6 +144,8 @@ public class Interpreter implements Expr.Visitor<Object>,
         environment.define(stmt.name.lexeme, value);
         return null;
     }
+
+
 
     private boolean isTruthy(Object object) {
         // Null is falsy
