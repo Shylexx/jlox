@@ -258,7 +258,44 @@ public class Parser {
             return new Expr.Unary(operator, right);
         }
 
-        return primary();
+        return call();
+    }
+
+    private Expr call() {
+        // Parse left operand of call
+        Expr expr = primary();
+
+
+        while (true) {
+            // Every time we see a (, we call finishCall() to parse the call expr using the previously parsed expr as the callee.
+            // The new expr becomes the new 'expr' and we loop to see if the parsed call is also called.
+            if (match(LEFT_PAREN)) {
+                expr = finishCall(expr);
+            } else {
+                break;
+            }
+        }
+
+        return expr;
+    }
+
+    private Expr finishCall(Expr callee) {
+        List<Expr> arguments = new ArrayList<>();
+        // Until we reach the end of the args list, continue evaluating args and adding them.
+        if (!check(RIGHT_PAREN)) {
+            do {
+                if(arguments.size() >= 255) {
+                    error(peek(), "Can't have more than 255 arguments in a function.");
+                }
+                arguments.add(expression());
+            } while (match(COMMA));
+        }
+
+        Token paren = consume(RIGHT_PAREN,
+                "Expect ')' after function arguments");
+
+        return new Expr.Call(callee, paren, arguments);
+
     }
 
     private Expr primary() {
@@ -296,6 +333,14 @@ public class Parser {
         return false;
     }
 
+    /**
+     * If the next token in the List to be parsed matches the param, it will advance past it safely.
+     * If it does not then it throws an error
+     * This is great for syntax checking. It ensures that the next token matches expected
+     * @param type The expected token
+     * @param message The message to print if the next token does not match
+     * @return The consumed token
+     */
     private Token consume(TokenType type, String message) {
         if (check(type)) return advance();
 
