@@ -43,6 +43,7 @@ public class Parser {
     private Stmt statement() {
         if (match(IF)) return ifStatement();
         if (match(PRINT)) return printStatement();
+        if (match(WHILE)) return whileStatement();
         // '{' character starts a new scope/block
         if (match(LEFT_BRACE)) return new Stmt.Block(block());
 
@@ -61,6 +62,15 @@ public class Parser {
         }
 
         return new Stmt.If(condition, thenBranch, elseBranch);
+    }
+
+    private Stmt whileStatement() {
+        consume(LEFT_PAREN, "Expected a '(' after 'while'.");
+        Expr condition = expression();
+        consume(RIGHT_PAREN, "Expected a ')' at the end of while loop condition.");
+        Stmt body = statement();
+
+        return new Stmt.While(condition, body);
     }
 
     private Stmt printStatement() {
