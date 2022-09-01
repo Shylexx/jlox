@@ -15,7 +15,7 @@ public class Environment {
         this.enclosing = enclosing;
     }
 
-    Object get(Token name) {
+    public Object get(Token name) {
         if(values.containsKey(name.lexeme)) {
             return values.get(name.lexeme);
         }
@@ -25,6 +25,40 @@ public class Environment {
 
         throw new RuntimeError(name,
                 "Undefined Variable '" +name.lexeme + "'.");
+    }
+
+    /**
+     * Gets a variable from a scope up the ladder of locals
+     * @param distance How many rungs up the ladder the scope is
+     * @param name The name of the variable to get
+     * @return The variable from the map
+     */
+    public Object getAt(int distance, String name) {
+        return ancestor(distance).values.get(name);
+    }
+
+    /**
+     * Assigns a variable in a local scope
+     * @param distance how many scopes up the ladder the var to be assigned to is
+     * @param name The identifier of the variable to assign to
+     * @param value The value to assign to the variable
+     */
+    public void assignAt(int distance, Token name, Object value) {
+        ancestor(distance).values.put(name.lexeme, value);
+    }
+
+    /**
+     * Walks up the enclosing environments to the required scope, and then returns the needed environment
+     * @param distance How many steps to take up the ladder
+     * @return The environment at the distance up the ladder from the current
+     */
+    private Environment ancestor(int distance) {
+        Environment environment = this;
+        for (int i = 0; i < distance; i++) {
+            environment = environment.enclosing;
+        }
+
+        return environment;
     }
 
     void define(String name, Object value) {

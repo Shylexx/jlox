@@ -58,6 +58,13 @@ public class Lox {
         // Stop if there was syntax error.
         if (hadError) return;
 
+        // Statically resolve variables in the source before interpreting
+        Resolver resolver = new Resolver(interpreter);
+        resolver.resolve(statements);
+
+        // Stop if there is a resolution error
+        if (hadError) return;
+
         interpreter.interpret(statements);
 
 //        // For now, print tokens
