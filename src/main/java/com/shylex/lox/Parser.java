@@ -323,6 +323,10 @@ public class Parser {
             // The new expr becomes the new 'expr' and we loop to see if the parsed call is also called.
             if (match(LEFT_PAREN)) {
                 expr = finishCall(expr);
+            } else if (match(DOT)) {
+                Token name = consume(IDENTIFIER,
+                        "Expect Property Name after '.'.");
+                expr = new Expr.Get(expr, name);
             } else {
                 break;
             }
