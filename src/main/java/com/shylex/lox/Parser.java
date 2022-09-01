@@ -46,6 +46,7 @@ public class Parser {
         if (match(FOR)) return forStatement();
         if (match(IF)) return ifStatement();
         if (match(PRINT)) return printStatement();
+        if (match(RETURN)) return returnStatement();
         if (match(WHILE)) return whileStatement();
         // '{' character starts a new scope/block
         if (match(LEFT_BRACE)) return new Stmt.Block(block());
@@ -129,6 +130,18 @@ public class Parser {
         Expr value = expression();
         consume(SEMICOLON, "Expect ';' after value.");
         return new Stmt.Print(value);
+    }
+
+    private Stmt returnStatement() {
+        Token keyword = previous();
+        Expr value = null;
+        // If returning a value, store the next token as the value;
+        if (!check(SEMICOLON)) {
+            value = expression();
+        }
+
+        consume(SEMICOLON, "Expected ';' at end of return statement");
+        return new Stmt.Return(keyword, value);
     }
 
     private Stmt varDeclaration() {
