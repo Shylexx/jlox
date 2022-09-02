@@ -16,8 +16,16 @@ public class LoxInstance {
             return fields.get(name.lexeme);
         }
 
+        // A method is found in the same way as a property
+        LoxFunction method = klass.findMethod(name.lexeme);
+        if (method != null) return method.bind(this);
+
         throw new RuntimeError(name,
                 "Undefined Property '" + name.lexeme + "'.");
+    }
+
+    void set(Token name, Object value) {
+        fields.put(name.lexeme, value);
     }
 
     @Override
